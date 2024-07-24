@@ -36,6 +36,10 @@ add_executable(square_vel src/square_vel.cpp)
 ament_target_dependencies(square_vel rclcpp px4_msgs geometry_msgs Eigen3 eigen3_cmake_module)
 install(TARGETS square_vel DESTINATION lib/${PROJECT_NAME})
 
+add_executable(liftoff src/liftoff.cpp)
+ament_target_dependencies(liftoff rclcpp px4_msgs geometry_msgs Eigen3 eigen3_cmake_module)
+install(TARGETS square_vel DESTINATION lib/${PROJECT_NAME})
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
