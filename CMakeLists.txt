@@ -33,7 +33,7 @@ find_package(rosbag2_cpp REQUIRED)
 
 # Velocity based square demo
 add_executable(square_vel src/square_vel.cpp)
-ament_target_dependencies(starling_demos_cpp 
+ament_target_dependencies(square_vel
     rclcpp 
     px4_msgs 
     geometry_msgs 
@@ -43,7 +43,7 @@ ament_target_dependencies(starling_demos_cpp
 install(TARGETS square_vel DESTINATION lib/${PROJECT_NAME})
 
 add_executable(liftoff src/liftoff.cpp)
-ament_target_dependencies(starling_demos_cpp 
+ament_target_dependencies(liftoff
     rclcpp 
     px4_msgs 
     geometry_msgs 
