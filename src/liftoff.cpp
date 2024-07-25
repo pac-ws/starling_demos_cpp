@@ -11,7 +11,7 @@
 #include <cmath>
 
 // Square mission parameters
-#define S_Z -1.0
+#define S_Z 2.0
 #define S_X 2.0
 
 using namespace std::chrono;
@@ -32,7 +32,7 @@ public:
 	auto qos = rclcpp::QoS(rclcpp::QoSInitialization(qos_profile.history, 5), qos_profile);
         
         // Fixed altitude mission
-        waypts << 2.0, 2.0, -2.0, 1.0;
+        waypts << 2.0, 2.0, S_Z, 1.0;
 
         // Pubs and Subs
         cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::TwistStamped>("cmd_vel", qos);
