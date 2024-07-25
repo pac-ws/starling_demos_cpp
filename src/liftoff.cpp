@@ -27,21 +27,16 @@ class SquareVel: public rclcpp::Node
 public:
 	SquareVel() : Node("square_vel")
 	{
-        // Parameters
-        this->declare_parameter<std::string>("namespace", "r9");
-        std::string ns;
-        this->get_parameter("namespace", ns);
-        
         // QoS
-		rmw_qos_profile_t qos_profile = rmw_qos_profile_sensor_data;
-		auto qos = rclcpp::QoS(rclcpp::QoSInitialization(qos_profile.history, 5), qos_profile);
+	rmw_qos_profile_t qos_profile = rmw_qos_profile_sensor_data;
+	auto qos = rclcpp::QoS(rclcpp::QoSInitialization(qos_profile.history, 5), qos_profile);
         
         // Fixed altitude mission
-        waypts << 1.0, 1.0, S_Z, 0.0,
+        waypts << 2.0, 2.0, -2.0, 1.0;
 
         // Pubs and Subs
-        cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::TwistStamped>(ns + "/cmd_vel", qos);
-        pos_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(ns + "/pose", qos, [this](const geometry_msgs::msg::PoseStamped::SharedPtr msg){
+        cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::TwistStamped>("cmd_vel", qos);
+        pos_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>("pose", qos, [this](const geometry_msgs::msg::PoseStamped::SharedPtr msg){
             pos_msg_ = msg->pose.position;
         });
 
@@ -57,9 +52,8 @@ private:
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr pos_sub_;
     geometry_msgs::msg::Point pos_msg_;
 
-    uint8_t way_pt_idx;
 	const float POS_TOL_ = 0.5; 
-    Eigen::Matrix<float, 4, 4> waypts;
+    Eigen::Vector4f waypts;
 	bool waypt_reached = false;
 
     void timer_callback();
@@ -70,13 +64,10 @@ private:
 void SquareVel::timer_callback()
 {
     // compute the new velocity based on where the drone is wrt to the next waypoint
-    publish_cmd_vel(waypts.row(way_pt_idx));
+    publish_cmd_vel(waypts);
 
     // error calculation
-    waypt_reached = this->has_reached_pose(waypts.row(way_pt_idx));
-    if (waypt_reached) {
-        way_pt_idx = (way_pt_idx + 1) % 4;
-    }
+    waypt_reached = this->has_reached_pose(waypts);
 }
 
 void SquareVel::publish_cmd_vel(const Eigen::Vector4f& target_pos){
