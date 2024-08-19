@@ -11,7 +11,7 @@
 #include <cmath>
 
 // Square mission parameters
-#define S_Z 2.0
+#define S_Z -2.0
 #define S_X 2.0
 
 using namespace std::chrono;

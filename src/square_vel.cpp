@@ -27,25 +27,20 @@ class SquareVel: public rclcpp::Node
 public:
 	SquareVel() : Node("square_vel")
 	{
-        // Parameters
-        this->declare_parameter<std::string>("namespace", "r9");
-        std::string ns;
-        this->get_parameter("namespace", ns);
-        
         // QoS
 		rmw_qos_profile_t qos_profile = rmw_qos_profile_sensor_data;
 		auto qos = rclcpp::QoS(rclcpp::QoSInitialization(qos_profile.history, 5), qos_profile);
         
         // Square mission waypoints
         way_pt_idx = 0;
-        waypts << 0.0, 0.0, S_Z, 0.0,
-                  S_X, 0.0, S_Z, 0.0,
-                  S_X, S_X, S_Z, 0.0,
-                  0.0, S_X, S_Z, 0.0;
+        waypts << S_X, S_X, S_Z, 0.0,
+                  2*S_X, S_X, S_Z, 0.0,
+                  2*S_X, 2*S_X, S_Z, 0.0,
+                  S_X, 2*S_X, S_Z, 0.0;
 
         // Pubs and Subs
-        cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::TwistStamped>(ns + "/cmd_vel", qos);
-        pos_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(ns + "/pose", qos, [this](const geometry_msgs::msg::PoseStamped::SharedPtr msg){
+        cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::TwistStamped>("cmd_vel", qos);
+        pos_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>("pose", qos, [this](const geometry_msgs::msg::PoseStamped::SharedPtr msg){
             pos_msg_ = msg->pose.position;
         });
 
