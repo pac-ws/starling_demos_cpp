@@ -10,10 +10,6 @@
 #include <sstream>
 #include <cmath>
 
-// Square mission parameters
-#define S_Z -1.0
-#define S_X 2.0
-
 using namespace std::chrono;
 using namespace std::chrono_literals;
 
@@ -27,16 +23,43 @@ class SquareVel: public rclcpp::Node
 public:
 	SquareVel() : Node("square_vel")
 	{
+        RCLCPP_INFO(this->get_logger(), "Starting square_vel demo");
+
+        // x
+        this->declare_parameter<float>("length", 2.0);
+        this->get_parameter("length", length);
+
+        // y
+        this->declare_parameter<float>("width", 2.0);
+        this->get_parameter("width", width);
+
+        // z
+        this->declare_parameter<float>("alt", -3.0);
+        this->get_parameter("alt", alt);
+
+        this->declare_parameter<float>("x_offset", 2.0);
+        this->get_parameter("x_offset", x_offset);
+
+        this->declare_parameter<float>("y_offset", 2.0);
+        this->get_parameter("y_offset", y_offset);
+
+        RCLCPP_INFO(this->get_logger(), "Dimensions");
+        RCLCPP_INFO(this->get_logger(), "Length: %f", length);
+        RCLCPP_INFO(this->get_logger(), "Width: %f", width);
+        RCLCPP_INFO(this->get_logger(), "Altitude: %f", alt);
+        RCLCPP_INFO(this->get_logger(), "X Offset: %f", x_offset);
+        RCLCPP_INFO(this->get_logger(), "Y Offset: %f", y_offset);
+
         // QoS
 		rmw_qos_profile_t qos_profile = rmw_qos_profile_sensor_data;
 		auto qos = rclcpp::QoS(rclcpp::QoSInitialization(qos_profile.history, 5), qos_profile);
-        
+
         // Square mission waypoints
         way_pt_idx = 0;
-        waypts << S_X, S_X, S_Z, 0.0,
-                  2*S_X, S_X, S_Z, 0.0,
-                  2*S_X, 2*S_X, S_Z, 0.0,
-                  S_X, 2*S_X, S_Z, 0.0;
+        waypts << x_offset, y_offset, alt, 0.0,
+                  x_offset + length, y_offset, alt, 0.0,
+                  x_offset + length, y_offset + width, alt, 0.0,
+                  x_offset , y_offset + width, alt, 0.0;
 
         // Pubs and Subs
         cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::TwistStamped>("cmd_vel", qos);
@@ -55,6 +78,12 @@ private:
     rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr cmd_vel_pub_;
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr pos_sub_;
     geometry_msgs::msg::Point pos_msg_;
+
+    float length;
+    float width;
+    float alt;
+    float x_offset;
+    float y_offset;
 
     uint8_t way_pt_idx;
 	const float POS_TOL_ = 0.5; 
@@ -75,6 +104,7 @@ void SquareVel::timer_callback()
     waypt_reached = this->has_reached_pose(waypts.row(way_pt_idx));
     if (waypt_reached) {
         way_pt_idx = (way_pt_idx + 1) % 4;
+        RCLCPP_INFO(this->get_logger(), "Waypoint %d reached", way_pt_idx);
     }
 }
 
@@ -111,7 +141,6 @@ bool SquareVel::has_reached_pose(const Eigen::Vector4f& target_pos)
 
 int main(int argc, char *argv[])
 {
-	std::cout << "Starting square vel demo node..." << std::endl;
 	setvbuf(stdout, NULL, _IONBF, BUFSIZ);
 	rclcpp::init(argc, argv);
 	rclcpp::spin(std::make_shared<SquareVel>());

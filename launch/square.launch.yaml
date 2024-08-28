@@ -1,0 +1,33 @@
+launch:
+- arg:
+    name: "length"
+- arg:
+    name: "width"
+- arg:
+    name: "alt"
+- arg:
+    name: "x_offset"
+- arg:
+    name: "y_offset"
+
+- node:
+    pkg: "starling_demos_cpp"
+    exec: "square_vel"
+    name: "square_vel"
+    param:
+      -
+        name: "width"
+        value: "$(var width)"
+      -
+        name: "length"
+        value: "$(var length)"
+      -
+        name: "alt"
+        value: "$(var alt)"
+      -
+        name: "x_offset"
+        value: "$(var x_offset)"
+      -
+        name: "y_offset"
+        value: "$(var y_offset)"
+
